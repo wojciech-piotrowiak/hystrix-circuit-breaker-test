@@ -10,8 +10,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import com.netflix.config.ConfigurationManager;
 
-Properties;
-
 public class HystrixTest {
 
 	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
