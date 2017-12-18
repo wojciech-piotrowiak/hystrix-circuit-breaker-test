@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import com.netflix.hystrix.HystrixCommandProperties;
 import org.junit.Test;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
@@ -9,103 +8,117 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import com.netflix.config.ConfigurationManager;
+
+Properties;
+
 public class HystrixTest {
 
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-            HystrixTest.TestConfiguration.class);
-    HystrixService connectionService = context.getBean(HystrixService.class);
+	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+			HystrixTest.TestConfiguration.class);
+	HystrixService connectionService = context.getBean(HystrixService.class);
 
-    @Test
-    public void testCircuitBreaker() throws InterruptedException {
-        HystrixCommandProperties.Setter()
-                .withCircuitBreakerRequestVolumeThreshold(3);
-        HystrixCommandProperties.Setter()
-                .withCircuitBreakerEnabled(true);
+	@Test
+	public void testCircuitBreaker() throws InterruptedException {
+		ConfigurationManager.getConfigInstance()
+				.setProperty("hystrix.command.doUpload.circuitBreaker.sleepWindowInMilliseconds",
+						2000);
+		ConfigurationManager.getConfigInstance()
+				.setProperty("hystrix.command.doUpload.circuitBreaker.requestVolumeThreshold",
+						2);
+		ConfigurationManager.getConfigInstance()
+				.setProperty("hystrix.command.doUpload.circuitBreaker.errorThresholdPercentage",
+						1);
 
-        incorrectStep();
-        incorrectStep();
-        incorrectStep();
-        incorrectStep();
-        incorrectStep();
-        System.out.println();
-        System.out.println();
-        System.out.println();
+		incorrectStep();
+		incorrectStep();
+		incorrectStep();
+		incorrectStep();
+		incorrectStep();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
 
-        final long l = System.currentTimeMillis();
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
-        correctStep(l);
+		final long l = System.currentTimeMillis();
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
+		correctStep(l);
 
-        //wait more than resetTimeout
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        Thread.sleep(21_000L);
-        correctStep(l);
+		//wait more than resetTimeout
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		Thread.sleep(21_000L);
+		correctStep(l);
 
-    }
+	}
 
-    private void incorrectStep() throws InterruptedException {
-        doFailedUpload(connectionService);
-        Thread.sleep(1_000L);
-        System.out.println();
-    }
+	private void incorrectStep() throws InterruptedException {
+		doFailedUpload(connectionService);
+		Thread.sleep(1_000L);
+		System.out.println();
+	}
 
-    private void correctStep(final long l) throws InterruptedException {
-        doCorrectUpload(connectionService);
-        Thread.sleep(1_000L);
-        printTime(l);
-    }
+	private void correctStep(final long l) throws InterruptedException {
+		doCorrectUpload(connectionService);
+		Thread.sleep(1_000L);
+		printTime(l);
+	}
 
-    private void printTime(final long l) {
-        System.out.println(String.format("%d ms after last failure", (System.currentTimeMillis() - l)));
-    }
+	private void printTime(final long l) {
+		System.out.println(String.format("%d ms after last failure", (System.currentTimeMillis() - l)));
+	}
 
-    private void doFailedUpload(HystrixService externalService) throws InterruptedException {
-        System.out.println("before fail");
-        externalService.doUpload("FAIL");
-        System.out.println("after fail");
-        Thread.sleep(900);
-    }
+	private void doFailedUpload(HystrixService externalService) throws InterruptedException {
+		System.out.println("before fail");
+		externalService.doUpload("FAIL");
+		System.out.println("after fail");
+		Thread.sleep(900);
+	}
 
-    private void doCorrectUpload(HystrixService externalService) throws InterruptedException {
-        System.out.println("before ok");
-        externalService.doUpload("");
-        System.out.println("after ok");
-        Thread.sleep(900);
-    }
+	private void doCorrectUpload(HystrixService externalService) throws InterruptedException {
+		System.out.println("before ok");
+		externalService.doUpload("");
+		System.out.println("after ok");
+		Thread.sleep(900);
+	}
 
-    @Configuration
-    @EnableAspectJAutoProxy
-    @EnableCircuitBreaker
-    @EnableHystrixDashboard
-    protected static class TestConfiguration {
+	@Configuration
+	@EnableAspectJAutoProxy
+	@EnableCircuitBreaker
+	@EnableHystrixDashboard
+	protected static class TestConfiguration {
 
-        @Bean
-        public HystrixService externalService() {
-            return new HystrixService();
-        }
+		@Bean
+		public HystrixService externalService() {
+			return new HystrixService();
+		}
 
-
-    }
+	}
 
 }
